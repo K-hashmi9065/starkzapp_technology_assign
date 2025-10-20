@@ -75,8 +75,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             final targetHeight = (constraints.maxHeight * dpr)
                                 .round();
                             return Image.network(
-                              // Use a higher-resolution image to avoid upscaling artifacts
-                              user.imageMediumUrl,
+                              // Use the largest image for sharper tiles; decoder will downscale to target size
+                              user.imageLargeUrl,
                               fit: BoxFit.cover,
                               filterQuality: FilterQuality.high,
                               cacheWidth: targetWidth > 0 ? targetWidth : null,
