@@ -15,6 +15,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(usersProvider);
     final user = state.users.firstWhere((e) => e.id == widget.userId);
+    final largeUrl = user.imageLargeUrl.isNotEmpty
+        ? user.imageLargeUrl
+        : 'https://randomuser.me/api/portraits/women/43.jpg';
 
     return Scaffold(
       appBar: AppBar(),
@@ -53,7 +56,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     final w = (constraints.maxWidth * dpr).round();
                     final h = (constraints.maxHeight * dpr).round();
                     return Image.network(
-                      user.imageLargeUrl,
+                      largeUrl,
                       fit: BoxFit.cover,
                       filterQuality: FilterQuality.high,
                       cacheWidth: w > 0 ? w : null,
@@ -125,10 +128,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 4),
-
-                  Text(
-                    user.city,
-                    style: const TextStyle(fontSize: 16, color: Colors.black54),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Location",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        user.city,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
