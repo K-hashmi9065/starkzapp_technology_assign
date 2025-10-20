@@ -25,36 +25,58 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               fit: StackFit.expand,
               children: [
                 // Thumbnail image (loads first)
-                Image.network(
-                  user.imageThumbnailUrl,
-                  fit: BoxFit.cover,
-                  headers: const {'User-Agent': 'Mozilla/5.0 (Flutter)'},
-                  errorBuilder: (context, error, stackTrace) {
-                    debugPrint(
-                      'Profile thumb image error: ${error.toString()}',
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final dpr = MediaQuery.of(context).devicePixelRatio;
+                    final w = (constraints.maxWidth * dpr).round();
+                    final h = (constraints.maxHeight * dpr).round();
+                    return Image.network(
+                      user.imageThumbnailUrl,
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
+                      cacheWidth: w > 0 ? w : null,
+                      cacheHeight: h > 0 ? h : null,
+                      headers: const {'User-Agent': 'Mozilla/5.0 (Flutter)'},
+                      errorBuilder: (context, error, stackTrace) {
+                        debugPrint(
+                          'Profile thumb image error: ${error.toString()}',
+                        );
+                        return Container(color: Colors.grey.shade200);
+                      },
                     );
-                    return Container(color: Colors.grey.shade200);
                   },
                 ),
-                // Medium quality image (loads second with fade effect)
-                Image.network(
-                  user.imageMediumUrl,
-                  fit: BoxFit.cover,
-                  headers: const {'User-Agent': 'Mozilla/5.0 (Flutter)'},
-                  frameBuilder:
-                      (context, child, frame, wasSynchronouslyLoaded) {
-                        if (wasSynchronouslyLoaded) {
-                          return child;
-                        }
-                        return AnimatedOpacity(
-                          opacity: frame == null ? 0.0 : 1.0,
-                          duration: const Duration(milliseconds: 500),
-                          child: child,
+                // Higher quality image (loads second with fade effect)
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final dpr = MediaQuery.of(context).devicePixelRatio;
+                    final w = (constraints.maxWidth * dpr).round();
+                    final h = (constraints.maxHeight * dpr).round();
+                    return Image.network(
+                      user.imageLargeUrl,
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
+                      cacheWidth: w > 0 ? w : null,
+                      cacheHeight: h > 0 ? h : null,
+                      headers: const {'User-Agent': 'Mozilla/5.0 (Flutter)'},
+                      frameBuilder:
+                          (context, child, frame, wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded) {
+                              return child;
+                            }
+                            return AnimatedOpacity(
+                              opacity: frame == null ? 0.0 : 1.0,
+                              duration: const Duration(milliseconds: 500),
+                              child: child,
+                            );
+                          },
+                      errorBuilder: (context, error, stackTrace) {
+                        debugPrint(
+                          'Profile image load error: ${error.toString()}',
                         );
+                        return const SizedBox.shrink();
                       },
-                  errorBuilder: (context, error, stackTrace) {
-                    debugPrint('Profile image load error: ${error.toString()}');
-                    return const SizedBox.shrink();
+                    );
                   },
                 ),
               ],

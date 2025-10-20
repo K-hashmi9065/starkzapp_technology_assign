@@ -67,23 +67,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Stack(
                     children: [
                       Positioned.fill(
-                        child: Image.network(
-                          user.imageThumbnailUrl,
-                          fit: BoxFit.cover,
-                          headers: const {
-                            'User-Agent': 'Mozilla/5.0 (Flutter)',
-                          },
-                          loadingBuilder: (context, child, progress) {
-                            if (progress == null) {
-                              return child;
-                            }
-                            return Container(color: Colors.grey.shade200);
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            // Log minimal error information to help diagnose failures
-                            debugPrint('Image load error: ${error.toString()}');
-                            return const Center(
-                              child: Icon(Icons.broken_image),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final dpr = MediaQuery.of(context).devicePixelRatio;
+                            final targetWidth = (constraints.maxWidth * dpr)
+                                .round();
+                            final targetHeight = (constraints.maxHeight * dpr)
+                                .round();
+                            return Image.network(
+                              // Use a higher-resolution image to avoid upscaling artifacts
+                              user.imageMediumUrl,
+                              fit: BoxFit.cover,
+                              filterQuality: FilterQuality.high,
+                              cacheWidth: targetWidth > 0 ? targetWidth : null,
+                              cacheHeight: targetHeight > 0
+                                  ? targetHeight
+                                  : null,
+                              headers: const {
+                                'User-Agent': 'Mozilla/5.0 (Flutter)',
+                              },
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) {
+                                  return child;
+                                }
+                                return Container(color: Colors.grey.shade200);
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                // Log minimal error information to help diagnose failures
+                                debugPrint(
+                                  'Image load error: ${error.toString()}',
+                                );
+                                return const Center(
+                                  child: Icon(Icons.broken_image),
+                                );
+                              },
                             );
                           },
                         ),
